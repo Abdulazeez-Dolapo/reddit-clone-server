@@ -14,6 +14,7 @@ import {
 	InputType,
 	Field,
 	ObjectType,
+	Query,
 } from "type-graphql"
 
 // Use this to group all your arguments and make them reusable
@@ -51,7 +52,7 @@ export class UserResolver {
 	@Mutation(() => UserResponse)
 	async register(
 		@Arg("options") options: UsernamePasswordInput,
-		@Ctx() { em }: MyContext
+		@Ctx() { em, req }: MyContext
 	): Promise<UserResponse> {
 		if (options.username.length < 3) {
 			return {
@@ -96,6 +97,9 @@ export class UserResolver {
 			}
 		}
 
+		// Create session for user to keep them logged in
+		req.session.userId = user.id
+
 		return { user }
 	}
 
@@ -134,5 +138,13 @@ export class UserResolver {
 		return {
 			user,
 		}
+	}
+
+	// Get logged in user details
+	@Query(() => User, { nullable: true })
+	async getUser(@Ctx() { em, req }: MyContext) {
+		if (!req.session.userId) return null
+		const user = await em.findOne(User, { id: req.session.userId })
+		return user
 	}
 }
