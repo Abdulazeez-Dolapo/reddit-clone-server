@@ -1,4 +1,7 @@
+// Entities
 import { Post } from "src/entities/Post"
+
+// Types
 import { MyContext } from "src/types"
 import { Resolver, Query, Ctx, Arg, Int, Mutation } from "type-graphql"
 
