@@ -17,6 +17,8 @@ import {
 	Query,
 } from "type-graphql"
 
+// import {EntityManager} from '@mikro-orm/postgresql'
+
 // Use this to group all your arguments and make them reusable
 @InputType()
 class UsernamePasswordInput {
@@ -82,7 +84,19 @@ export class UserResolver {
 			password: hashedPassword,
 		})
 
+		// let user
+
 		try {
+			// To use the query builder instead
+			// const result = await	(em as EntityManager).createQueryBuilder(User).getKnexQuery().insert({
+			// 		username: options.username,
+			// 		password: hashedPassword,
+			// 	created_at: new Date(),
+			// 	updated_at: new Date(),
+			// }).returning('*')
+
+			// 	user = result[0]
+
 			await em.persistAndFlush(user)
 		} catch (err) {
 			if (err.code === "23505" || err.detail.includes("already taken")) {
@@ -98,6 +112,7 @@ export class UserResolver {
 		}
 
 		// Create session for user to keep them logged in
+		// Stored only user ID because every other property of a user can change.
 		req.session.userId = user.id
 
 		return { user }
